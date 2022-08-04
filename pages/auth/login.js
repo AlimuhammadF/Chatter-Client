@@ -1,10 +1,59 @@
 import Image from "next/image";
 import authHero from "../../public/auth.svg";
 import Router from "next/router";
+import toast from "react-hot-toast";
+import { signIn, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 export default function Login() {
-	function handleLogin(e) {
+	// current session
+	const { data: session } = useSession();
+
+	// redirect if user found
+	useEffect(() => {
+		if (session) {
+			Router.push("/");
+		}
+	}, [session]);
+
+	// refs
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+
+	// handle login function
+	async function handleLogin(e) {
 		e.preventDefault();
+
+		// create login toast
+		const loginAccountToast = toast.loading("Logging in...");
+
+		try {
+			// login
+			await signIn("credentials", {
+				redirect: false,
+				email,
+				password,
+			})
+				.then((error) =>
+					!error.error
+						? toast.success("logged in succussfully", {
+								id: loginAccountToast,
+						  })
+						: toast.error(error.error, { id: loginAccountToast })
+				)
+				.catch((error) =>
+					!error.error
+						? toast.success("logged in succussfully", {
+								id: loginAccountToast,
+						  })
+						: toast.error(error.error, { id: loginAccountToast })
+				);
+		} catch (error) {
+			// if error
+			console.log(error);
+			toast.error("Something went wrong", { id: loginAccountToast });
+			return;
+		}
 	}
 
 	return (
@@ -30,6 +79,7 @@ export default function Login() {
 						type="email"
 						className="max-w-lg px-5 w-full h-14 border-2 border-main-black border-opacity-20 rounded-2xl bg-transparent"
 						required
+						onChange={(e) => setEmail(e.target.value)}
 					/>
 				</div>
 				<div className="mt-4 w-full">
@@ -38,6 +88,7 @@ export default function Login() {
 						type="password"
 						className="max-w-lg px-5 w-full h-14 border-2 border-main-black border-opacity-20 rounded-2xl bg-transparent"
 						required
+						onChange={(e) => setPassword(e.target.value)}
 					/>
 					<div className="w-full flex justify-end">
 						<button

@@ -2,6 +2,7 @@ import Head from "next/head";
 import Loading from "./Loading";
 import Navbar from "./Navbar";
 import { useSession } from "next-auth/react";
+import { Toaster } from "react-hot-toast";
 
 export default function Layout({ children }) {
 	// current session
@@ -24,6 +25,7 @@ export default function Layout({ children }) {
 				{/* if auth is not loading */}
 				{status !== "loading" && (
 					<>
+						<Toaster />
 						<Navbar />
 						{children}
 					</>
