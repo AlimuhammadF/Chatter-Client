@@ -6,7 +6,7 @@ import { Toaster } from "react-hot-toast";
 
 export default function Layout({ children }) {
 	// current session
-	const { data: session, status } = useSession();
+	const { data: status } = useSession();
 
 	return (
 		<div>

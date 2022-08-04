@@ -2,6 +2,7 @@ import { useSession, signOut } from "next-auth/react";
 import Router from "next/router";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { BellIcon } from "@heroicons/react/solid";
 
 export default function Navbar() {
 	// current session
@@ -54,7 +55,12 @@ export default function Navbar() {
 				</h1>
 
 				{session && (
-					<div className="relative select-none">
+					<div className="relative select-none flex items-center space-x-4">
+						<div className="w-6 h-6 relative">
+							<BellIcon />
+							<span className="absolute -top-1 animate-pulse bg-red-500 text-main-white w-2.5 h-2.5 flex justify-center items-center text-xs rounded-full -right-0"></span>
+						</div>
+
 						<span
 							onClick={handleMenu}
 							className="w-9 h-9 text-lg font-semibold cursor-pointer bg-gradient-to-r from-cyan-500 to-accent-blue rounded-full flex justify-center text-main-white items-center"
