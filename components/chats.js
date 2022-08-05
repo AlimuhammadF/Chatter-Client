@@ -4,6 +4,7 @@ import { useRecoilState } from "recoil";
 import { createChatState } from "../atoms/createChatModel";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import SearchedUser from "./searchedUser";
 
 export default function Chats({ setSelectedChat, selectedChat }) {
 	// create chat state
@@ -34,7 +35,8 @@ export default function Chats({ setSelectedChat, selectedChat }) {
 		if (searchInput) {
 			try {
 				const result = await fetch(
-					`${process.env.NEXT_PUBLIC_SERVER_LOCATION}/api/v1/auth/searchUser?search=${searchInput}`
+					`${process.env.NEXT_PUBLIC_SERVER_LOCATION}/api/v1/auth/searchUser?search=${searchInput}`,
+					{ method: "GET" }
 				).then(async (res) => {
 					return await res.json();
 				});
@@ -61,9 +63,6 @@ export default function Chats({ setSelectedChat, selectedChat }) {
 			}
 		}
 	}
-
-	// handle create chat
-	async function handleCreateChat() {}
 
 	const chats = [
 		{
@@ -116,27 +115,14 @@ export default function Chats({ setSelectedChat, selectedChat }) {
 						</form>
 						<div className="w-full max-h-96 overflow-y-scroll">
 							{search.map((data) => (
-								<div
-									onClick={handleCreateChat}
+								<SearchedUser
 									key={data._id}
-									className="flex items-center space-x-3 cursor-pointer hover:bg-gray-200 p-3 rounded-xl"
-								>
-									<div
-										className={`w-9 h-9 text-sm font-semibold cursor-pointer bg-gray-400 rounded-full flex justify-center text-main-white items-center`}
-									>
-										{data.firstName[0] + data.lastName[0]}
-									</div>
-									<div>
-										<h1 className="font-semibold">
-											{data.firstName +
-												" " +
-												data.lastName}
-										</h1>
-										<p className="font-medium text-sm opacity-70">
-											{data.email}
-										</p>
-									</div>
-								</div>
+									data={data}
+									setSelectedChat={setSelectedChat}
+									selectedChat={selectedChat}
+									setCreateChat={setCreateChat}
+									setSearch={setSearch}
+								/>
 							))}
 						</div>
 					</div>
