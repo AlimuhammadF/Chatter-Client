@@ -6,7 +6,7 @@ import { Toaster } from "react-hot-toast";
 
 export default function Layout({ children }) {
 	// current session
-	const { data: status } = useSession();
+	const { data: session, status } = useSession();
 
 	return (
 		<div>
@@ -18,7 +18,7 @@ export default function Layout({ children }) {
 				/>
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
-			<main className="font bg-main-white text-main-black min-h-screen overflow-x-hidden">
+			<main className="font bg-main-white overflow-hidden text-main-black min-h-screen overflow-x-hidden">
 				{/* auth loading  */}
 				{status === "loading" && <Loading />}
 
@@ -26,7 +26,7 @@ export default function Layout({ children }) {
 				{status !== "loading" && (
 					<>
 						<Toaster />
-						<Navbar />
+
 						{children}
 					</>
 				)}

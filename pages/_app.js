@@ -4,6 +4,7 @@ import "../styles/nprogress.css";
 import { SessionProvider } from "next-auth/react";
 import Router from "next/router";
 import nProgress from "nprogress";
+import { RecoilRoot } from "recoil";
 
 // nprogress bar
 Router.events.on("routeChangeStart", nProgress.start);
@@ -16,9 +17,11 @@ export default function App({
 }) {
 	return (
 		<SessionProvider session={session}>
-			<Layout>
-				<Component {...pageProps} />
-			</Layout>
+			<RecoilRoot>
+				<Layout>
+					<Component {...pageProps} />
+				</Layout>
+			</RecoilRoot>
 		</SessionProvider>
 	);
 }

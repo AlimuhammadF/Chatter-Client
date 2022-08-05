@@ -47,7 +47,7 @@ export default function Create() {
 		// fetching api
 		try {
 			const res = await fetch(
-				`${process.env.NEXT_PUBLIC_SERVER_LOCATION}/api/auth/create`,
+				`${process.env.NEXT_PUBLIC_SERVER_LOCATION}/api/v1/auth/create`,
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
