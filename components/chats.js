@@ -2,11 +2,40 @@ import { PlusIcon, UserAddIcon } from "@heroicons/react/solid";
 import Chat from "./chat";
 import { useRecoilState } from "recoil";
 import { createChatState } from "../atoms/createChatModel";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import SearchedUser from "./searchedUser";
+import { useSession } from "next-auth/react";
 
 export default function Chats({ setSelectedChat, selectedChat }) {
+	// current sesison
+	const { data: session } = useSession();
+
+	// all chats
+	const [chats, setChats] = useState([]);
+	const [isChatsLoading, setIsChatsLoading] = useState(true);
+
+	// fetch all chats
+	async function fetchAllChats() {
+		try {
+			const result = await fetch(
+				`${process.env.NEXT_PUBLIC_SERVER_LOCATION}/api/v1/chat/fetchChats?user=${session?.user?._id}`,
+				{ method: "GET" }
+			).then(async (res) => {
+				return await res.json();
+			});
+
+			setChats(result.result);
+			setIsChatsLoading(false);
+			return;
+		} catch (error) {
+			console.error(error);
+		}
+	}
+	useEffect(() => {
+		fetchAllChats();
+	}, []);
+
 	// create chat state
 	const [createChat, setCreateChat] = useRecoilState(createChatState);
 
@@ -63,31 +92,6 @@ export default function Chats({ setSelectedChat, selectedChat }) {
 			}
 		}
 	}
-
-	const chats = [
-		{
-			_id: "123",
-			name: "alimuhammad",
-			lastestMessage:
-				"Yo how are you my guy hope you fine. Your friend Zxies.",
-			timestamps: "Today, 19:23",
-		},
-		{
-			_id: "1234",
-			name: "alimuhammad",
-			lastestMessage:
-				"Yo how are you my guy hope you fine. Your friend Zxies.",
-			timestamps: "Today, 19:23",
-		},
-		,
-		{
-			_id: "12345",
-			name: "alimuhammad",
-			lastestMessage:
-				"Yo how are you my guy hope you fine. Your friend Zxies.",
-			timestamps: "Today, 19:23",
-		},
-	];
 
 	return (
 		<>
