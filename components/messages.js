@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import Message from "./message";
+import typingLottie from "../public/typing.json";
+import Lottie from "lottie-react";
 
 export default function Messages({ selectedChat, socket, setChats, chats }) {
 	// current session
@@ -81,6 +83,8 @@ export default function Messages({ selectedChat, socket, setChats, chats }) {
 
 			// if success
 			if (response.success) {
+				setMessageInput("");
+
 				// update client side
 				const messageData = {
 					_id: response.result._id,
@@ -132,6 +136,30 @@ export default function Messages({ selectedChat, socket, setChats, chats }) {
 		scrollToBottom();
 	}, [messages, fetchMessageLoading]);
 
+	// when typing
+	const [typing, setTyping] = useState(false);
+	async function handleTyping() {
+		const typingData = {
+			chatId: selectedChat?._id,
+			typing: messageInput ? true : false,
+		};
+
+		await socket.emit("typing-send", typingData);
+	}
+	useEffect(() => {
+		handleTyping();
+	}, [messageInput]);
+
+	// when typing rec
+	async function handleRecTyping() {
+		await socket.on("typing-rec", (data) => {
+			setTyping(data.typing);
+		});
+	}
+	useEffect(() => {
+		handleRecTyping();
+	}, [socket]);
+
 	return (
 		<>
 			{fetchMessageLoading ? (
@@ -177,6 +205,16 @@ export default function Messages({ selectedChat, socket, setChats, chats }) {
 									Sending...
 								</p>
 							)}
+							{typing && (
+								<div className="w-14 rounded-xl translate-x-12 bg-gray-200 h-8 flex justify-center items-center mt-5">
+									{
+										<Lottie
+											animationData={typingLottie}
+											loop={true}
+										/>
+									}
+								</div>
+							)}
 							<div ref={messagesRef}></div>
 						</div>
 
@@ -192,6 +230,7 @@ export default function Messages({ selectedChat, socket, setChats, chats }) {
 								onChange={(e) =>
 									setMessageInput(e.target.value)
 								}
+								value={messageInput}
 							/>
 							<button className="bg-accent-blue text-white text-semibold px-5 mb-1 py-1.5 rounded-xl">
 								Send
