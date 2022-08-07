@@ -39,7 +39,9 @@ export default function Chat({ chat, setSelectedChat, selectedChat }) {
 								</h1>
 							</div>
 							<p className="text-sm opacity-70 mt-2 truncate -translate-y-1">
-								{chat?.latestMessage?.message}
+								{chat?.latestMessage?.message
+									? chat?.latestMessage?.message
+									: "No latest Message.."}
 							</p>
 						</>
 					) : (

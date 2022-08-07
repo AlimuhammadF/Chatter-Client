@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
+import Message from "./message";
 
 export default function Messages({ setSelectedChat, selectedChat }) {
 	// current session
@@ -85,6 +86,17 @@ export default function Messages({ setSelectedChat, selectedChat }) {
 			console.error(error);
 		}
 	}
+	const messagesRef = useRef(null);
+	const scrollToBottom = () => {
+		messagesRef.current?.scrollIntoView({
+			behavior: "smooth",
+			block: "nearest",
+			inline: "start",
+		});
+	};
+	useEffect(() => {
+		scrollToBottom();
+	}, [messages, fetchMessageLoading]);
 
 	return (
 		<>
@@ -115,67 +127,16 @@ export default function Messages({ setSelectedChat, selectedChat }) {
 					<div className="w-full h-full px-6 py-5 flex flex-col justify-end space-y-6">
 						<div className="overflow-y-scroll no-scrollbar max-h-screen">
 							{messages.map((msg) => (
-								<div
-									key={msg._id}
-									className={`flex mt-5 max-h-screen  ${
-										msg.sender._id === session?.user?._id
-											? "justify-end"
-											: "justify-start"
-									}`}
-								>
-									{msg.sender._id !== session?.user?._id && (
-										<div
-											className={`w-9 h-9 text-sm font-semibold cursor-pointer bg-gray-400 rounded-full flex justify-center text-main-white items-center`}
-										>
-											{msg.sender.firstName[0] +
-												msg.sender.lastName[0]}
-										</div>
-									)}
-									<div className="px-4 flex flex-col justify-between">
-										<h1
-											className={`font-semibold opacity-70 ${
-												msg.sender._id ===
-												session?.user?._id
-													? " justify-end"
-													: "justify-start"
-											} flex w-full`}
-										>
-											{msg.sender._id ===
-											session?.user?._id
-												? "You"
-												: msg.sender.firstName}
-										</h1>
-
-										<div
-											className={`${
-												msg.sender._id ===
-												session?.user?._id
-													? "bg-accent-blue text-main-white"
-													: "bg-gray-300"
-											} px-5 py-2 rounded-xl max-w-2xl flex items-center space-x-3`}
-										>
-											<p>{msg.message}</p>
-											<p className="text-xs opacity-70">
-												Today, 18:32
-											</p>
-										</div>
-									</div>
-
-									{msg.sender._id === session?.user?._id && (
-										<div
-											className={`w-9 h-9 text-sm font-semibold cursor-pointer bg-gradient-to-r from-cyan-500 to-accent-blue rounded-full flex justify-center text-main-white items-center`}
-										>
-											TE
-										</div>
-									)}
-								</div>
+								<Message key={msg._id} msg={msg} />
 							))}
 							{sendingMessageLoading && (
 								<p className="flex justify-end font-medium text-sm opacity-70 mt-1 -translate-x-12">
 									Sending...
 								</p>
 							)}
+							<div ref={messagesRef}></div>
 						</div>
+
 						<form
 							onSubmit={handleSendMessage}
 							className="border flex items-end border-opacity-30 border-main-black h-24 rounded-xl py-2 px-4"

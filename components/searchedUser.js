@@ -52,10 +52,10 @@ export default function SearchedUser({
 			// set selected chat
 			if (selectedChat?._id !== data._id) {
 				setSelectedChat({
-					_id: data._id,
-					name: data.name,
-					lastestMessage: data.lastestMessage,
-					timestamps: data.timestamps,
+					_id: fetchCreateChatApi.result._id,
+					name: fetchCreateChatApi.result.name,
+					lastestMessage: fetchCreateChatApi.result.lastestMessage,
+					timestamps: fetchCreateChatApi.result.createdAt,
 				});
 			}
 		} catch (error) {

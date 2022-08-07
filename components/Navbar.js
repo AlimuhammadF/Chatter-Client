@@ -11,14 +11,7 @@ export default function Navbar() {
 	// states
 	const [menu, setMenu] = useState(false);
 
-	// handle menu funtion
-	function handleMenu() {
-		if (menu) {
-			setMenu(false);
-		} else {
-			setMenu(true);
-		}
-	}
+	
 
 	// handle logout
 	async function handleLogout() {

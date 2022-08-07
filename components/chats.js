@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import SearchedUser from "./searchedUser";
 import { useSession } from "next-auth/react";
+import Settings from "./settings";
 
 export default function Chats({ setSelectedChat, selectedChat }) {
 	// current sesison
@@ -135,12 +136,17 @@ export default function Chats({ setSelectedChat, selectedChat }) {
 			<div className="border-r w-full p-5 h-full max-h-full max-w-xs border-opacity-30 border-main-black">
 				<div className="flex justify-between items-center">
 					<h1 className="font-bold text-xl">Chatter</h1>
-					<button
-						onClick={handleCreateChatModel}
-						className="w-6 h-6 text-main-black cursor-pointer opacity-50 hover:opacity-100 transition-all duration-300"
-					>
-						<UserAddIcon className="" />
-					</button>
+					<div className="flex">
+						<button
+							onClick={handleCreateChatModel}
+							className="w-6 h-6 text-main-black cursor-pointer opacity-50 hover:opacity-100 transition-all duration-300"
+						>
+							<UserAddIcon className="" />
+						</button>
+						<button>
+							<Settings />
+						</button>
+					</div>
 				</div>
 				<form className="border w-full h-10 border-main-black rounded-xl border-opacity-40 mt-5 mb-5">
 					<input
@@ -150,10 +156,10 @@ export default function Chats({ setSelectedChat, selectedChat }) {
 					/>
 				</form>
 				<div
-					className="overflow-y-scroll"
+					className="overflow-y-scroll no-scrollbar"
 					style={{ maxHeight: "82vh" }}
 				>
-					{chats.map((chat) => (
+					{chats?.map((chat) => (
 						<Chat
 							key={chat._id}
 							chat={chat}
