@@ -25,7 +25,7 @@ export default function Home() {
 
 	return (
 		<div className="w-full mx-auto max-w-screen-2xl gap-7 space-x-3 flex justify-center cus:justify-between min-h-screen px-8 md:px-10">
-			<Container />
+			<Container socket={socket} />
 		</div>
 	);
 }

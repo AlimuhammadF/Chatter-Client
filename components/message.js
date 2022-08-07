@@ -6,7 +6,13 @@ import { format } from "date-fns";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
 
-export default function Message({ msg }) {
+export default function Message({
+	msg,
+	socket,
+	selectedChat,
+	messages,
+	setMessages,
+}) {
 	// current session
 	const { data: session } = useSession();
 
@@ -31,11 +37,38 @@ export default function Message({ msg }) {
 						}),
 					}
 				);
+
+				// seen data
+
+				const seenData = {
+					messageId: msg._id,
+					seen: true,
+					chatId: selectedChat._id,
+				};
+
+				await socket.emit("seen-message-send", seenData);
 			} catch (error) {
 				console.error(error);
 			}
 		}
 	}
+
+	// receive seen messaeg
+	async function recSeenMessage() {
+		await socket.on("seen-message-rec", async (data) => {
+			const newState = await messages.map((e) => {
+				if (e._id === data.messageId) {
+					return { ...e, seen: true };
+				}
+				return e;
+			});
+
+			await setMessages(newState);
+		});
+	}
+	useEffect(() => {
+		recSeenMessage();
+	}, [socket]);
 
 	useEffect(() => {
 		if (inView && !msg.seen) {
@@ -118,7 +151,7 @@ export default function Message({ msg }) {
 				<div
 					className={`w-9 h-9 text-sm font-semibold cursor-pointer bg-gradient-to-r from-cyan-500 to-accent-blue rounded-full flex justify-center text-main-white items-center`}
 				>
-					TE
+					{msg.sender.firstName[0] + msg.sender.lastName[0]}
 				</div>
 			)}
 		</div>

@@ -1,17 +1,20 @@
 import { useSession } from "next-auth/react";
 
-export default function Chat({ chat, setSelectedChat, selectedChat }) {
+export default function Chat({ chat, setSelectedChat, selectedChat, socket }) {
 	// current session
 	const { data: session } = useSession();
 
 	// handle select chat
-	function handleSelectChat() {
+	async function handleSelectChat() {
 		if (selectedChat?._id !== chat._id) {
-			setSelectedChat({
+			// leave socket room first
+			await socket.emit("leave-room", selectedChat?._id);
+
+			await setSelectedChat({
 				_id: chat._id,
 				name: chat.name,
 				lastestMessage: chat.lastestMessage,
-				timestamps: chat.timestamps,
+				createAt: chat.createdAt,
 			});
 		}
 	}
@@ -38,7 +41,13 @@ export default function Chat({ chat, setSelectedChat, selectedChat }) {
 									{data.firstName}
 								</h1>
 							</div>
-							<p className="text-sm opacity-70 mt-2 truncate -translate-y-1">
+							<p
+								className={`text-sm ${
+									chat?.latestMessage?.seen
+										? "opacity-70"
+										: "opacity-100 font-medium"
+								} mt-2 truncate -translate-y-1`}
+							>
 								{chat?.latestMessage?.message
 									? chat?.latestMessage?.message
 									: "No latest Message.."}

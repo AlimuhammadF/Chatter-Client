@@ -2,7 +2,7 @@ import { useState } from "react";
 import Chats from "./chats";
 import Messages from "./messages";
 
-export default function Container() {
+export default function Container({ socket }) {
 	// selected chat
 	const [selectedChat, setSelectedChat] = useState();
 
@@ -11,6 +11,7 @@ export default function Container() {
 			<Chats
 				selectedChat={selectedChat}
 				setSelectedChat={setSelectedChat}
+				socket={socket}
 			/>
 			{!selectedChat ? (
 				<div className="flex text-xl w-full h-full items-center justify-center">
@@ -20,6 +21,7 @@ export default function Container() {
 				<Messages
 					selectedChat={selectedChat}
 					setSelectedChat={setSelectedChat}
+					socket={socket}
 				/>
 			)}
 		</div>

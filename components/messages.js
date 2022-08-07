@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import Message from "./message";
+import { v4 as uuidv4 } from "uuid";
 
-export default function Messages({ setSelectedChat, selectedChat }) {
+export default function Messages({ setSelectedChat, selectedChat, socket }) {
 	// current session
 	const { data: session } = useSession();
 
@@ -26,6 +27,9 @@ export default function Messages({ setSelectedChat, selectedChat }) {
 			if (response.success) {
 				setMessages(response.result);
 				setFetchMessagesLoading(false);
+
+				// connect to chat room
+				await socket.emit("join-room", selectedChat?._id);
 				return;
 			}
 
@@ -52,8 +56,8 @@ export default function Messages({ setSelectedChat, selectedChat }) {
 
 		setSendingMessageLoading(true);
 
-		// message send api
 		try {
+			// message send api
 			const response = await fetch(
 				`${process.env.NEXT_PUBLIC_SERVER_LOCATION}/api/v1/chat/sendMessage`,
 				{
@@ -69,16 +73,35 @@ export default function Messages({ setSelectedChat, selectedChat }) {
 				return await res.json();
 			});
 
-			// if success
-			if (response.success) {
-				setSendingMessageLoading(false);
-				return;
-			}
-
 			// if error
 			if (response.error) {
 				setFetchMessagesLoading(false);
 				console.error(response.message);
+				return;
+			}
+
+			// if success
+			if (response.success) {
+				// update client side
+				const messageData = {
+					_id: response.result._id,
+					sender: {
+						_id: session?.user?._id,
+						firstName: session?.user?.firstName,
+						lastName: session?.user?.lastName,
+					},
+					seen: false,
+					message: messageInput,
+					chatId: selectedChat?._id,
+					createdAt: new Date(),
+				};
+				console.log(messageData);
+				setMessages((list) => [...list, messageData]);
+
+				// send message in socket
+				await socket.emit("send-message", messageData);
+
+				setSendingMessageLoading(false);
 			}
 		} catch (error) {
 			toast.error("Something went wrong.");
@@ -86,6 +109,19 @@ export default function Messages({ setSelectedChat, selectedChat }) {
 			console.error(error);
 		}
 	}
+
+	// receive messages
+	async function handleReciveMessage() {
+		await socket.on("rec-message", async (data) => {
+			setMessages((messsages) => [...messsages, data]);
+		});
+		console.log(messages);
+	}
+	useEffect(() => {
+		handleReciveMessage();
+	}, [socket]);
+
+	// scroll to bottom
 	const messagesRef = useRef(null);
 	const scrollToBottom = () => {
 		messagesRef.current?.scrollIntoView({
@@ -127,7 +163,14 @@ export default function Messages({ setSelectedChat, selectedChat }) {
 					<div className="w-full h-full px-6 py-5 flex flex-col justify-end space-y-6">
 						<div className="overflow-y-scroll no-scrollbar max-h-screen">
 							{messages.map((msg) => (
-								<Message key={msg._id} msg={msg} />
+								<Message
+									key={msg?._id || "123"}
+									msg={msg}
+									socket={socket}
+									setMessages={setMessages}
+									messages={messages}
+									selectedChat={selectedChat}
+								/>
 							))}
 							{sendingMessageLoading && (
 								<p className="flex justify-end font-medium text-sm opacity-70 mt-1 -translate-x-12">
