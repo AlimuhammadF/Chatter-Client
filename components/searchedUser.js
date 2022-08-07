@@ -7,6 +7,8 @@ export default function SearchedUser({
 	selectedChat,
 	setCreateChat,
 	setSearch,
+	fetchAllChats,
+	socket,
 }) {
 	// current session
 	const { data: session } = useSession();
@@ -32,9 +34,6 @@ export default function SearchedUser({
 				return res.json();
 			});
 
-			await setCreateChat(false);
-			await setSearch([]);
-
 			// if success
 			if (fetchCreateChatApi.success) {
 				toast.success(fetchCreateChatApi.message, {
@@ -47,6 +46,7 @@ export default function SearchedUser({
 				toast.error(fetchCreateChatApi.message, {
 					id: createChatToast,
 				});
+				return;
 			}
 
 			// set selected chat
@@ -58,6 +58,18 @@ export default function SearchedUser({
 					timestamps: fetchCreateChatApi.result.createdAt,
 				});
 			}
+
+			await fetchAllChats();
+
+			// fetch chat indication
+			const indicationData = {
+				roomId: data._id,
+				fetchChats: true,
+			};
+			await socket.emit("fetch-chat-indication", indicationData);
+
+			await setCreateChat(false);
+			await setSearch([]);
 		} catch (error) {
 			toast.error("Something went wrong.", {
 				id: createChatToast,

@@ -22,7 +22,9 @@ export default function Chat({ chat, setSelectedChat, selectedChat, socket }) {
 	return (
 		<div
 			onClick={handleSelectChat}
-			className="py-2.5 px-4 roun cursor-pointer hover:bg-gray-200 transition-all duration-300 border-b border-main-black border-opacity-20 select-none"
+			className={`py-2.5 px-4 roun cursor-pointer ${
+				selectedChat?._id === chat._id && "bg-gray-300"
+			} hover:bg-gray-200 transition-all duration-300 border-b border-main-black border-opacity-20 select-none`}
 		>
 			{chat.members.map((data) => (
 				<div key={data._id}>

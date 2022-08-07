@@ -8,15 +8,18 @@ import SearchedUser from "./searchedUser";
 import { useSession } from "next-auth/react";
 import Settings from "./settings";
 
-export default function Chats({ setSelectedChat, selectedChat, socket }) {
+export default function Chats({
+	setSelectedChat,
+	selectedChat,
+	socket,
+	setChats,
+	chats,
+}) {
 	// current sesison
 	const { data: session } = useSession();
 
-	// all chats
-	const [chats, setChats] = useState([]);
-	const [isChatsLoading, setIsChatsLoading] = useState(true);
-
 	// fetch all chats
+	const [isChatsLoading, setIsChatsLoading] = useState(true);
 	async function fetchAllChats() {
 		try {
 			const result = await fetch(
@@ -42,6 +45,17 @@ export default function Chats({ setSelectedChat, selectedChat, socket }) {
 	useEffect(() => {
 		fetchAllChats();
 	}, []);
+
+	// if received new caht
+	async function fetchChatsOnIndication() {
+		await socket.on("fetch-chat-indication-rec", async (data) => {
+			console.log(data);
+			await fetchAllChats();
+		});
+	}
+	useEffect(() => {
+		fetchChatsOnIndication();
+	}, [socket]);
 
 	// create chat state
 	const [createChat, setCreateChat] = useRecoilState(createChatState);
@@ -133,6 +147,8 @@ export default function Chats({ setSelectedChat, selectedChat, socket }) {
 									selectedChat={selectedChat}
 									setCreateChat={setCreateChat}
 									setSearch={setSearch}
+									fetchAllChats={fetchAllChats}
+									socket={socket}
 								/>
 							))}
 						</div>

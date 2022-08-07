@@ -2,9 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import Message from "./message";
-import { v4 as uuidv4 } from "uuid";
 
-export default function Messages({ setSelectedChat, selectedChat, socket }) {
+export default function Messages({ selectedChat, socket, setChats, chats }) {
 	// current session
 	const { data: session } = useSession();
 
@@ -95,7 +94,6 @@ export default function Messages({ setSelectedChat, selectedChat, socket }) {
 					chatId: selectedChat?._id,
 					createdAt: new Date(),
 				};
-				console.log(messageData);
 				setMessages((list) => [...list, messageData]);
 
 				// send message in socket
@@ -169,6 +167,8 @@ export default function Messages({ setSelectedChat, selectedChat, socket }) {
 									socket={socket}
 									setMessages={setMessages}
 									messages={messages}
+									setChats={setChats}
+									chats={chats}
 									selectedChat={selectedChat}
 								/>
 							))}

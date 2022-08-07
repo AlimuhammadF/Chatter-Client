@@ -12,6 +12,8 @@ export default function Message({
 	selectedChat,
 	messages,
 	setMessages,
+	setChats,
+	chats,
 }) {
 	// current session
 	const { data: session } = useSession();
@@ -39,7 +41,6 @@ export default function Message({
 				);
 
 				// seen data
-
 				const seenData = {
 					messageId: msg._id,
 					seen: true,
@@ -66,15 +67,46 @@ export default function Message({
 			await setMessages(newState);
 		});
 	}
+
 	useEffect(() => {
 		recSeenMessage();
 	}, [socket]);
 
 	useEffect(() => {
-		if (inView && !msg.seen) {
+		if (inView && !msg.seen && msg.sender._id !== session?.user?._id) {
 			handleSeenMessage();
 		}
 	}, [inView]);
+
+	// update latest msg on chat
+	async function updateLatestMessage() {
+		const tempChat = await chats.map((obj) => {
+			if (obj._id === msg.chatId) {
+				return {
+					...obj,
+					latestMessage: {
+						_id: msg._id,
+						seen: false,
+						message: msg.message,
+						chatId: selectedChat?._id,
+						createdAt: msg.createdAt,
+					},
+				};
+			}
+			return obj;
+		});
+
+		const finalChat = tempChat.sort((obj1, obj2) => {
+			const obj3 = new Date(obj1?.latestMessage?.createdAt);
+			const obj4 = new Date(obj2?.latestMessage?.createdAt);
+			return obj4 - obj3;
+		});
+
+		await setChats(finalChat);
+	}
+	useEffect(() => {
+		updateLatestMessage();
+	}, []);
 
 	return (
 		<div
