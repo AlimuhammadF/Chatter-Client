@@ -112,30 +112,6 @@ export default function Messages({ selectedChat, socket, setChats, chats }) {
 		}
 	}
 
-	// receive messages
-	async function handleReciveMessage() {
-		await socket.on("rec-message", async (data) => {
-			setMessages((messsages) => [...messsages, data]);
-		});
-		console.log(messages);
-	}
-	useEffect(() => {
-		handleReciveMessage();
-	}, [socket]);
-
-	// scroll to bottom
-	const messagesRef = useRef(null);
-	const scrollToBottom = () => {
-		messagesRef.current?.scrollIntoView({
-			behavior: "smooth",
-			block: "nearest",
-			inline: "start",
-		});
-	};
-	useEffect(() => {
-		scrollToBottom();
-	}, [messages, fetchMessageLoading]);
-
 	// when typing
 	const [typing, setTyping] = useState(false);
 	async function handleTyping() {
@@ -159,6 +135,30 @@ export default function Messages({ selectedChat, socket, setChats, chats }) {
 	useEffect(() => {
 		handleRecTyping();
 	}, [socket]);
+
+	// receive messages
+	async function handleReciveMessage() {
+		await socket.on("rec-message", async (data) => {
+			setMessages((messsages) => [...messsages, data]);
+		});
+		console.log(messages);
+	}
+	useEffect(() => {
+		handleReciveMessage();
+	}, [socket]);
+
+	// scroll to bottom
+	const messagesRef = useRef(null);
+	const scrollToBottom = () => {
+		messagesRef.current?.scrollIntoView({
+			behavior: "smooth",
+			block: "nearest",
+			inline: "start",
+		});
+	};
+	useEffect(() => {
+		scrollToBottom();
+	}, [messages, fetchMessageLoading, typing]);
 
 	return (
 		<>
